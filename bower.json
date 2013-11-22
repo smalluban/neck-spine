@@ -1,0 +1,38 @@
+{
+  "name": "neck",
+  "version": "0.1.0",
+  "authors": [
+    "smalluban"
+  ],
+  "description": "Extension Pack for Spine",
+  "main": "lib/neck.js",
+  "keywords": [
+    "spine",
+    "spinejs",
+    "mvc",
+    "data-binding",
+    "nested-views"
+  ],
+  "license": "MIT",
+  "homepage": "neckjs.org",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "spine": "~1.2.2"
+  },
+  "overrides": {
+    "spine": {
+      "main": [
+        "src/spine.coffee",
+        "src/ajax.coffee",
+        "src/relation.coffee",
+        "src/local.coffee"
+      ]
+    }
+  }
+}

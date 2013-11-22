@@ -1,0 +1,29 @@
+{
+  "name": "neck",
+  "description": "Extension Pack for Spine",
+  "author": "smalluban",
+  "version": "0.1.0",
+  "repository": { 
+    "type": "git",
+    "url": "http://github.com/smalluban/neck.git"
+  },
+  "keywords": [
+    "spine",
+    "spinejs",
+    "mvc",
+    "data-binding",
+    "nested-views"
+  ],
+  "scripts": {
+    "start": "brunch watch --server",
+    "test": "brunch build && mocha-phantomjs lib/test/index.html"
+  },
+  "dependencies": {
+    "javascript-brunch": "<= 1.8",
+    "coffee-script-brunch": "<= 1.8",
+    "uglify-js-brunch": "<= 1.8",
+    "auto-reload-brunch": "<= 1.8",
+    "css-brunch": "<= 1.8.0",
+    "clean-css-brunch": "<= 1.8.0"
+  }
+}
