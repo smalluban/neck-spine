@@ -88,15 +88,16 @@ Neck.Scope = class Scope extends Spine.Module
       resolvers = []
 
       unless checkString.match /[-+=\(\)\{\}\:]+/
-        model = string.split('.')
-        resolvers.push model[1]
-
-        property = model.pop()
-        model = eval model.join('.')
+        resolvers.push string.split('.')[1]
 
         Object.defineProperty @, name, 
           get: -> eval string
-          set: (val)-> model[property] = val
+          set: (val)-> 
+            model = string.split('.')
+            property = model.pop()
+            model = eval model.join('.')
+
+            model[property] = val
       else
         if checkString.match /\:/
           string = "(" + string + ")"
