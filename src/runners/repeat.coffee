@@ -1,14 +1,26 @@
-Neck.Controller.runners['list'] = class ListRunner extends Neck.Controller
+Neck.Controller.runners['repeat'] = class RepeatRunner extends Neck.Controller
 
   scope:
     items: '='
     filter: '='
-    view: '='
+    view: '@'
     
   constructor: ->
     super
 
-    throw 'No view defined' unless @scope.view
+    unless @scope.view
+      @scope.view = html: @el.html()
+      @el.empty()
+
+    # run attribute should pass regexp "'item_name in items_name"
+    unless @runAttr.match /^[a-zA-Z$_][^\ \(\)\{\}]*\ in\ [a-zA-Z$_][^\ \(\)\{\}]*$/
+      throw 'Wrong list definition'
+
+    # Get item and items
+    @runAttr = @runAttr.split(' in ')
+
+    # Set items property
+    @scope.addProperty 'items', @runAttr[1]
 
     @scope.watch 'items', =>
       if @scope.items
@@ -17,7 +29,12 @@ Neck.Controller.runners['list'] = class ListRunner extends Neck.Controller
 
         @controllers = for item in @scope.items
           # Create item controller
-          itemController = new ListItem context: @context, rootScope: @scope, item: item, itemName: @runAttr
+          itemController = new RepeatItem 
+            context: @context
+            rootScope: @scope
+            item: item
+            itemName: @runAttr[0]
+
           @append itemController
           itemController
         undefined
@@ -32,17 +49,24 @@ Neck.Controller.runners['list'] = class ListRunner extends Neck.Controller
         undefined
       , 10
 
-class ListItem extends Neck.Controller
+class RepeatItem extends Neck.Controller
 
-  text: null
-  view: -> @el = $(require("#{Neck.Controller.viewsPath}/#{@scope.view}")(@scope))
+  view: -> 
+    if typeof @scope.view is 'object'
+      @scope.view.html
+    else
+      @el = $(require("#{Neck.Controller.viewsPath}/#{@scope.view}")(@scope))
+
   visible: true
+  text: null
 
   constructor: ->
     super
   
     @scope[@itemName] = @item
     @render()
+
+    # Text is used for comparing filter
     @text = @el.text()
 
     # Listen to update event on spine models

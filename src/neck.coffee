@@ -216,7 +216,8 @@ Neck.Controller = class Controller extends Spine.Controller
                 when '@' then childScope.addProperty key, "'#{string}'", @rootScope
                 when '=' then childScope.addProperty key, string, @rootScope
             else 
-              childScope[key] = @scope[key]
+              if @scope[key] isnt '=' and @scope[key] isnt '@'
+                childScope[key] = @scope[key]
         else if @scope is '@'
           for key, value of @el[0].dataset
             childScope.addProperty key, "'#{value}'", @rootScope
