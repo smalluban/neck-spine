@@ -4,5 +4,5 @@ Neck.Controller.runners['helper'] = class HelperRunner
     new (require("#{Neck.Globals.helpersPath}/" + options.runAttr))(
       context: options.context
       el: options.el
-      rootScope: options.rootScope
+      parentScope: options.parentScope
     )

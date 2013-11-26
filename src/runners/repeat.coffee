@@ -1,7 +1,6 @@
 Neck.Controller.runners['repeat'] = class RepeatRunner extends Neck.Controller
 
   scope:
-    items: '='
     filter: '='
     view: '@'
     
@@ -9,8 +8,10 @@ Neck.Controller.runners['repeat'] = class RepeatRunner extends Neck.Controller
     super
 
     unless @scope.view
-      @scope.view = html: @el.html()
-      @el.empty()
+      @scope.template = @el.html()
+      
+    # Clear runner body
+    @el.empty()
 
     # run attribute should pass regexp "'item_name in items_name"
     unless @runAttr.match /^[a-zA-Z$_][^\ \(\)\{\}]*\ in\ [a-zA-Z$_][^\ \(\)\{\}]*$/
@@ -31,7 +32,7 @@ Neck.Controller.runners['repeat'] = class RepeatRunner extends Neck.Controller
           # Create item controller
           itemController = new RepeatItem 
             context: @context
-            rootScope: @scope
+            parentScope: @scope
             item: item
             itemName: @runAttr[0]
 
@@ -51,23 +52,13 @@ Neck.Controller.runners['repeat'] = class RepeatRunner extends Neck.Controller
 
 class RepeatItem extends Neck.Controller
 
-  view: -> 
-    if typeof @scope.view is 'object'
-      @scope.view.html
-    else
-      @el = $(require("#{Neck.Controller.viewsPath}/#{@scope.view}")(@scope))
-
   visible: true
-  text: null
 
   constructor: ->
     super
   
     @scope[@itemName] = @item
     @render()
-
-    # Text is used for comparing filter
-    @text = @el.text()
 
     # Listen to update event on spine models
     if @item instanceof Spine.Model
@@ -76,12 +67,18 @@ class RepeatItem extends Neck.Controller
 
     @checkFilter()
 
+  view: ->
+    if @scope.view
+      @el = $(require("#{Neck.Controller.viewsPath}/#{@scope.view}")(@scope))
+    else
+      @el = $(@scope.template)
+
   checkFilter: ->
     if !@scope.filter and !@visible
       @el.show()
       @visible = true
     else
-      if @text.match(@scope.filter)
+      if @item.toString().match new RegExp(@scope.filter, 'gi')
         unless @visible
           @el.show()
           @visible = true

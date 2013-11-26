@@ -63,7 +63,7 @@ Neck.Scope = class Scope extends Spine.Module
 
     for item in string.match /scope\.([a-zA-Z$_][^\ \(\)\{\}\;]*)/g
       if result.indexOf(property = item.replace('scope.','')) is -1
-        result.push property
+        result.push property.split('.')[0]
 
     result
 
@@ -170,20 +170,17 @@ Neck.Scope = class Scope extends Spine.Module
     unless --root._applies
       root.trigger 'refresh:?'
 
-  clearSelf: ->
-    @stopListening()
-
-  clearChilds: ->
+  releaseChilds: ->
     for child in @_childs
-      child.clearChilds()
-      child.clearSelf()
+      child.releaseChilds()
+      child.stopListening()
     undefined
 
   release: ->
-    @unbind()
+    @releaseChilds()
 
-    @clearChilds()
-    @clearSelf()
+    @stopListening()
+    @unbind()
 
 Neck.Controller = class Controller extends Spine.Controller
 
@@ -201,29 +198,28 @@ Neck.Controller = class Controller extends Spine.Controller
   constructor: ->
     super
 
-    unless @rootScope
+    unless @parentScope
       @scope = new Scope context: @
     else 
       if @scope
         if @inheritScope
-          childScope = @rootScope.child()
+          childScope = @parentScope.child()
         else
           childScope = new Scope context: @
         if typeof @scope is 'object'
           for key, value of @scope
             if string = @el[0].dataset[key]
               switch @scope[key]
-                when '@' then childScope.addProperty key, "'#{string}'", @rootScope
-                when '=' then childScope.addProperty key, string, @rootScope
+                when '@' then childScope.addProperty key, "'#{string}'", @parentScope
+                when '=' then childScope.addProperty key, string, @parentScope
             else 
-              if @scope[key] isnt '=' and @scope[key] isnt '@'
-                childScope[key] = @scope[key]
+              childScope[key] = if @scope[key] isnt '=' and @scope[key] isnt '@' then @scope[key] else undefined
         else if @scope is '@'
           for key, value of @el[0].dataset
-            childScope.addProperty key, "'#{value}'", @rootScope
+            childScope.addProperty key, "'#{value}'", @parentScope
         else if @scope is '='
           for key, value of @el[0].dataset
-            childScope.addProperty key, value, @rootScope
+            childScope.addProperty key, value, @parentScope
 
         @scope = childScope
 
@@ -243,29 +239,28 @@ Neck.Controller = class Controller extends Spine.Controller
 
         if Neck.Controller.runners[name]
           el or= $(node)
-          runner = new Neck.Controller.runners[name](el: el, rootScope: @scope, runAttr: attribute.value)
+          runner = new Neck.Controller.runners[name](el: el, parentScope: @scope, runAttr: attribute.value)
       
     undefined
 
   render: ->
     if @view
       # Clear childs scopes
-      @scope.clearChilds()
+      @scope.releaseChilds()
 
       if typeof @view is 'function'
         @view.call @
       else
         @el.html (require("#{Neck.Controller.viewsPath}/#{@view}"))(@scope) 
         
-      @parse()
+      @parse() if @el[0]
 
   release: ->
     super
 
-    unless @scope is @rootScope
+    if @scope
       @scope.release()
-
-    @scope = undefined
+      @scope = undefined
 
 
 Neck.Screen = class Screen extends Neck.Controller
@@ -373,11 +368,11 @@ Neck.Screen = class Screen extends Neck.Controller
       # Back means that we want to go up in scope instead of going down
       if back and @parent
         options.parent = @parent
-        options.rootScope = @parent.scope
+        options.parentScope = @parent.scope
         @release()
       else
         options.parent = parent
-        options.rootScope = @scope
+        options.parentScope = @scope
 
       options.path = path
       options.root = @root

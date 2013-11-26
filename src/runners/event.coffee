@@ -19,7 +19,7 @@ class EventRunner extends Neck.Controller
 
     @scope.addProperty 'method', @runAttr
     if typeof(@scope.method) is 'function'
-      @scope.method.call @scope.context, @scope, @e
+      @scope.method.call @scope.context, @parentScope, @e
     else
       @scope.apply 'method'
 

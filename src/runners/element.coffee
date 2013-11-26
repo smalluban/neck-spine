@@ -1,4 +1,4 @@
 Neck.Controller.runners['element'] = class ElementRunner
   
   constructor: (options)->
-    options.rootScope["#{options.runAttr}"] = options.el
+    options.parentScope["#{options.runAttr}"] = options.el

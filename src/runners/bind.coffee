@@ -1,7 +1,7 @@
 Neck.Controller.runners['bind'] = class BindRunner extends Neck.Controller
 
   events: 
-    "keyup": "update"
+    "keydown": "update"
     "change": "update"
     "search": "update"
 
@@ -11,10 +11,11 @@ Neck.Controller.runners['bind'] = class BindRunner extends Neck.Controller
     @scope.addProperty 'bind', @runAttr
 
     # Set default value
-    @el.val(@scope.bind) if @scope.bind
+    @el.val(@scope.bind or '') if @scope.bind
 
     @scope.watch 'bind', =>
-      @el.val(if @scope.bind then @scope.bind else '') 
+      unless @_updatedFlag
+        @el.val(@scope.bind or '') 
 
   calculateValue: (value)->
     if value.match /^[0-9]+((\.|\,)?[0-9]+)*$/
@@ -23,5 +24,11 @@ Neck.Controller.runners['bind'] = class BindRunner extends Neck.Controller
       value
 
   update: ->
-    @scope.bind = @calculateValue(@el.val()) or undefined
-    @scope.apply 'bind'
+    # Timeout is need for 'keydown' event
+    # When timeout is not present value is always 
+    # one character behind
+    setTimeout =>
+      @scope.bind = @calculateValue(@el.val()) or undefined
+      @_updatedFlag = true
+      @scope.apply 'bind'
+      @_updatedFlag = false
