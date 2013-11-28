@@ -244,16 +244,19 @@ Neck.Controller = class Controller extends Spine.Controller
     undefined
 
   render: ->
-    if @view
+    if @view or @template
       # Clear childs scopes
       @scope.releaseChilds()
 
-      if typeof @view is 'function'
-        @view.call @
+      if typeof @template is 'string'
+        @el = $(@template)
+      else if typeof @template is 'function'
+        @el = $(@template.call(@))
       else
-        @el.html (require("#{Neck.Controller.viewsPath}/#{@view}"))(@scope) 
-        
-      @parse() if @el[0]
+        @el = $((require("#{Neck.Controller.viewsPath}/#{@view}"))(@scope))
+      
+      for el in @el
+        @parse(el)
 
   release: ->
     super
@@ -296,7 +299,10 @@ Neck.Screen = class Screen extends Neck.Controller
     @el[0].parentNode?
 
   render: ->
+    container = @el
     super
+
+    @el = container.html @el
 
     # Try to find yield
     @yield = @el.find('[ui-yield]')[0]
