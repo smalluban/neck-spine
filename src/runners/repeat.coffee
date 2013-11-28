@@ -8,7 +8,7 @@ Neck.Controller.runners['repeat'] = class RepeatRunner extends Neck.Controller
     super
 
     unless @scope.view
-      @scope.template = @el.html()
+      @template = @el.html()
       
     # Clear runner body
     @el.empty()
@@ -35,6 +35,7 @@ Neck.Controller.runners['repeat'] = class RepeatRunner extends Neck.Controller
             parentScope: @scope
             item: item
             itemName: @runAttr[0]
+            template: @template
 
           @append itemController
           itemController
@@ -66,12 +67,6 @@ class RepeatItem extends Neck.Controller
       @listenTo @item, 'destroy', => @release()
 
     @checkFilter()
-
-  view: ->
-    if @scope.view
-      @el = $(require("#{Neck.Controller.viewsPath}/#{@scope.view}")(@scope))
-    else
-      @el = $(@scope.template)
 
   checkFilter: ->
     if !@scope.filter and !@visible
