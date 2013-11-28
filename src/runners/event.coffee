@@ -1,15 +1,20 @@
 ### LIST OF EVENTS TO TRIGGER ###
 
 EventList = [
+  # Mouse events
   "click", "dblclick"
   "mouseenter", "mouseleave", "mouseout"
   "mouseover", "mousedown", "mouseup"
   "drag", "dragstart", "dragenter", "dragleave", "dragover", "dragend", "drop"
+  # General
   "load"
   "focus", "focusin", "focusout", "select", "blur"
   "submit"
   "scroll"
+  # Touch events
   "touchstart", "touchend", "touchmove", "touchenter", "touchleave", "touchcancel"
+  # Keys events
+  "keyup", "keydown", "keypress"
 ]
 
 class EventRunner extends Neck.Controller
