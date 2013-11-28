@@ -56,7 +56,7 @@ class TaskList extends Neck.Screen
       @scope.apply 'text'
 ```
 
-For documentation and examples go to [docs section](https://github.com/smalluban/neck/tree/master/docs).
+For documentation and examples go to [docs section](https://github.com/smalluban/neck/wiki).
 
 ## Setup
 
