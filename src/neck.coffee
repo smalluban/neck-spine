@@ -4,13 +4,12 @@ window.Neck = Neck = {}
 Neck.Scope = class Scope extends Spine.Module
   @include Spine.Events
 
-  constructor: (options)->
-    throw "Context is required" unless options.context
-    @context = options.context
+  constructor: (@context)->
+    unless @context
+      return throw "Context is required" 
 
     for key, value of {
       "_resolvers": {},
-      "_dirties": [],
       "_childs": [],
       "_callbacks": {},
       "listeningTo": [],
@@ -24,7 +23,6 @@ Neck.Scope = class Scope extends Spine.Module
     for key, value of {
       "parent": @
       "_resolvers": {},
-      "_dirties": [],
       "_childs": [],
       "_callbacks": {},
       "listeningTo": [],
@@ -67,6 +65,7 @@ Neck.Scope = class Scope extends Spine.Module
       value: value
       enumerable: false
       configurable: false
+      writable: true
 
   addProperty: (name, string, scope = @parent, context = @context)->
     # Match string, ex: "'Text'"
@@ -98,8 +97,7 @@ Neck.Scope = class Scope extends Spine.Module
           string = "(" + string + ")"
 
         Object.defineProperty @, name, 
-          get: -> 
-            eval string
+          get: -> eval string
 
         unless checkString.match /\(/
           resolvers = @_getPropertiesFromString checkString
@@ -169,7 +167,7 @@ Neck.Scope = class Scope extends Spine.Module
     for child in @_childs
       child.releaseChilds()
       child.stopListening()
-    undefined
+    @_childs = undefined
 
   release: ->
     @releaseChilds()
@@ -194,13 +192,13 @@ Neck.Controller = class Controller extends Spine.Controller
     super
 
     unless @parentScope
-      @scope = new Scope context: @
+      @scope = new Scope @
     else 
       if @scope
         if @inheritScope
           childScope = @parentScope.child()
         else
-          childScope = new Scope context: @
+          childScope = new Scope @
         if typeof @scope is 'object'
           for key, value of @scope
             if string = @el[0].dataset[key]
