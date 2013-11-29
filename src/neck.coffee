@@ -5,37 +5,32 @@ Neck.Scope = class Scope extends Spine.Module
   @include Spine.Events
 
   constructor: (options)->
-    throw "Context required" unless options.context
+    throw "Context is required" unless options.context
+    @context = options.context
 
-    for key, value of options
+    for key, value of {
+      "_resolvers": {},
+      "_dirties": [],
+      "_childs": [],
+      "_callbacks": {},
+      "listeningTo": [],
+      "listeningToOnce": []
+    }
       @addHiddenProperty key, value
 
-    for property in [
-      ["_resolvers", {}]
-      ["_dirties", []]
-      ["_childs", []]
-      ["_callbacks", {}]
-      ["listeningTo", []]
-      ["listeningToOnce", []]
-    ]
-      @addHiddenProperty.apply @, property
-
-  child: (options)->
+  child: ->
     @_childs.push child = Object.create(@)
 
-    for key, value of options
+    for key, value of {
+      "parent": @
+      "_resolvers": {},
+      "_dirties": [],
+      "_childs": [],
+      "_callbacks": {},
+      "listeningTo": [],
+      "listeningToOnce": []
+    }
       child.addHiddenProperty key, value
-
-    for property in [
-      ["parent", @]
-      ["_resolvers", {}]
-      ["_dirties", []]
-      ["_childs", []]
-      ["_callbacks", {}]
-      ["listeningTo", []]
-      ["listeningToOnce", []]
-    ]
-      child.addHiddenProperty.apply child, property
 
     child
 
@@ -255,8 +250,8 @@ Neck.Controller = class Controller extends Spine.Controller
       else
         @el = $((require("#{Neck.Controller.viewsPath}/#{@view}"))(@scope))
       
-      for el in @el
-        @parse(el)
+      @parse(el) for el in @el
+      undefined
 
   release: ->
     super
