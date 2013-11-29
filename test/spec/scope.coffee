@@ -122,7 +122,11 @@ describe 'Scope', ->
       assert.equal scope.test2, "new value dsa 10"
 
       # We can't set this value, so it still has value of expression
-      scope['test2'] = 'asd'
+      try
+        scope['test2'] = 'asd'
+      catch
+        null
+        
       assert.equal scope.test2, "new value dsa 10"
 
       # Deep property
