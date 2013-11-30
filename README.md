@@ -12,6 +12,8 @@ To work with Neck you should read Spine [documentation](http://spinejs.com/docs/
 
 It is on very early stage of development(no docs and tests yet). Consider not using it in production.
 
+[![Build Status](https://travis-ci.org/smalluban/neck.png?branch=master)](https://travis-ci.org/smalluban/neck)
+
 ## Getting started
 
 Creating flexible and responsive apps with Neck is very easy. For example, see how can be write a part of Tasks manager:
