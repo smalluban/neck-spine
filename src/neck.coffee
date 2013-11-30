@@ -167,7 +167,7 @@ Neck.Scope = class Scope extends Spine.Module
     for child in @_childs
       child.releaseChilds()
       child.stopListening()
-    @_childs = undefined
+    @_childs = []
 
   release: ->
     @releaseChilds()
