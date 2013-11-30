@@ -15,7 +15,6 @@
     "nested-views"
   ],
   "scripts": {
-    "postinstall": "bower install",
     "start": "brunch watch --server",
     "test": "brunch build && ./node_modules/.bin/mocha-phantomjs lib/test/index.html"
   },
