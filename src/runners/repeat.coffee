@@ -36,6 +36,7 @@ Neck.Controller.runners['repeat'] = class RepeatRunner extends Neck.Controller
             item: item
             itemName: @runAttr[0]
             template: @template
+            view: @scope.view
 
           @append itemController
           itemController
@@ -73,7 +74,7 @@ class RepeatItem extends Neck.Controller
       @el.show()
       @visible = true
     else
-      if @item.toString().match new RegExp(@scope.filter, 'gi')
+      if @item.toString()?.match new RegExp(@scope.filter, 'gi')
         unless @visible
           @el.show()
           @visible = true
