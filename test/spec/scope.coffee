@@ -32,7 +32,7 @@ describe 'Scope', ->
 
   it 'release self and children', ->
     scope.release()
-    assert.isUndefined scope._childs
+    assert.equal 0, scope._childs.length
     assert.equal scope.listeningToOnce, undefined
     assert.equal scope.listeningTo, undefined
     assert.deepEqual scope._callbacks, {}
