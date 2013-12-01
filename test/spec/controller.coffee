@@ -1,14 +1,10 @@
 describe 'Controller', ->
-
-  el = null
-
-  beforeEach ->
     
-    el = $(
-      '''
-        <div data-test="'test text'", data-number="2", data-property="test"/>
-      '''
-    )
+  el = $(
+    '''
+      <div data-test="'test text'", data-number="2", data-property="test"/>
+    '''
+  )
     
   it 'not create scope when scope is false', ->
     c = new Neck.Controller
@@ -162,15 +158,11 @@ describe 'Controller', ->
       scope: true
       inhertScope: false
 
-    assert.isObject c.scope
-
     spy = c.scope.release = sinon.spy()
-
     c.release()
+
     assert.ok spy.calledOnce
     assert.isUndefined c.scope
-
-
 
 
 
