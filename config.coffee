@@ -18,6 +18,7 @@ exports.config =
         'test/test.js': /^test(\/|\\)spec/
       order:
         before: [
+          'test/vendor/jquery-2.0.3.js'
           'src/neck.coffee'
         ]
 
