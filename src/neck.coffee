@@ -191,30 +191,33 @@ Neck.Controller = class Controller extends Spine.Controller
   constructor: ->
     super
 
-    unless @parentScope
-      @scope = new Scope @
-    else 
-      if @scope
-        if @inheritScope
-          childScope = @parentScope.child()
-        else
-          childScope = new Scope @
-        if typeof @scope is 'object'
-          for key, value of @scope
-            if string = @el[0].dataset[key]
-              switch @scope[key]
-                when '@' then childScope.addProperty key, "'#{string}'", @parentScope
-                when '=' then childScope.addProperty key, string, @parentScope
-            else 
-              childScope[key] = if @scope[key] isnt '=' and @scope[key] isnt '@' then @scope[key] else undefined
-        else if @scope is '@'
-          for key, value of @el[0].dataset
-            childScope.addProperty key, "'#{value}'", @parentScope
-        else if @scope is '='
-          for key, value of @el[0].dataset
-            childScope.addProperty key, value, @parentScope
+    if @scope
+      unless @parentScope
+        childScope = new Scope @
+      else if @inheritScope
+        childScope = @parentScope.child()
+      else
+        childScope = new Scope @
 
-        @scope = childScope
+      if typeof @scope is 'object'
+        for key, value of @scope
+          if string = @el[0].dataset[key]
+            switch @scope[key]
+              when '@' then childScope.addProperty key, "'#{string}'", @parentScope
+              when '=' then childScope.addProperty key, string, @parentScope
+              else childScope[key] = @scope[key]
+          else 
+            childScope[key] = if @scope[key] isnt '=' and @scope[key] isnt '@' then @scope[key] else undefined
+      else if @scope is '@'
+        for key, value of @el[0].dataset
+          childScope.addProperty key, "'#{value}'", @parentScope
+      else if @scope is '='
+        for key, value of @el[0].dataset
+          childScope.addProperty key, value, @parentScope
+
+      @scope = childScope
+    else
+      @scope = undefined
 
   append: (controller)->
     @yield or= @el.find('[ui-yield]')[0] or @el[0]
@@ -239,7 +242,7 @@ Neck.Controller = class Controller extends Spine.Controller
   render: ->
     if @view or @template
       # Clear childs scopes
-      @scope.releaseChilds()
+      @scope?.releaseChilds()
 
       if typeof @template is 'string'
         @el = $(@template)
