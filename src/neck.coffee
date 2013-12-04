@@ -312,12 +312,12 @@ Neck.Screen = class Screen extends Neck.Controller
     if @yield
       $(@yield).append controller.el or controller
     else
-      @parent.append controller
+      @parent?.append controller
 
   activate: ->
     # Try to release child
     @child?.release()
-    @child = null
+    @child = undefined
 
     # Deactivate parent
     @parent?.deactivate() unless @popup
@@ -406,6 +406,9 @@ Neck.Screen = class Screen extends Neck.Controller
     # Firstly release child screens 
     @child?.release()
     @child = undefined
+
+    # Delete parent reference
+    @parent = undefined
 
     unless @_isSingleton()
       super

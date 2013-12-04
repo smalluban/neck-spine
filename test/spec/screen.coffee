@@ -81,15 +81,55 @@ describe 'Screen', ->
       screen = new Neck.Screen
         path: 'example'
         template: '<div></div>'
-        
 
       screen.render()
       screen.parent = append: spy
       screen.append '<p>asd</p>'
       assert.ok spy.calledOnce
 
+  describe 'activate', ->
 
+    parent = screen = child = null
 
+    beforeEach ->
+      el = $('<div>').appendTo $('body')
+      parent = new Neck.Screen path: 'root', template: '<div ui-yield></div>', el: el
+      parent.render()
 
+      screen = new Neck.Screen path: 'example', template: '<div></div>', parent: parent
+      screen.activate()
 
+      child = new Neck.Screen path: 'child', template: '<div></div>', parent: screen
+
+    afterEach ->
+      parent.release()
+
+    it 'remove references with children and release them', ->
+      child.activate()
+      screen.activate()
+
+      assert.isNull child.el[0].parentNode
+      assert.isUndefined child.parent
+      assert.isUndefined screen.child
+
+    it 'adds "active" class to DOM element', ->
+      assert.ok screen.el.hasClass 'active'
+
+    it 'adds z-index with one up than parent', ->
+
+    it 'deactivate parent when is normal screen', ->
+      assert.notOk parent.el.hasClass 'active'
+
+    it 'not deactivate parent when screen is popup', ->
+      child.popup = true
+      child.activate()
+      assert.ok screen.el.hasClass 'active'
+
+    it 'set parent child to activated screen', ->
+      assert.ok parent.child is screen
+      child.activate()
+      assert.ok screen.child is child
+
+    it 'render screen', ->
+      assert.ok parent.yield.innerHTML, screen.template
 
