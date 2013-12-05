@@ -19,6 +19,7 @@ exports.config =
       order:
         before: [
           'test/vendor/jquery-2.0.3.js'
+          'test/vendor/mocha-1.14.0.js'
           'src/neck.coffee'
         ]
 

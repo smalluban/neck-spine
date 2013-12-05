@@ -3,23 +3,18 @@
   <meta charset="utf-8">
   <title>Mocha Tests</title>
   <link rel="stylesheet" href="style.css" />
-
+</head>
+<body>
+  <div id="mocha"></div>
   <script src="vendor.js"></script>
   <script src="../neck.js"></script>
-
   <script>
-    mocha.ui('bdd');
-    mocha.reporter('html');
-
-    window.expect = chai.expect;
+    mocha.setup({ui: 'bdd', globals: ['script*']});
     window.assert = chai.assert;
   </script>
 
   <script src="test.js"></script>
   
-</head>
-<body>
-  <div id="mocha"></div>
   <script>
     $(function() {
       if (window.mochaPhantomJS) {
