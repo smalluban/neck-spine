@@ -6,38 +6,33 @@ describe 'Scope', ->
   beforeEach ->
     scope = new Neck.Scope context
 
-  it 'throw error when no context given', ->
-    assert.throws -> new Neck.Scope()
+  describe 'constructor', ->
 
-  it 'not throw error when context given', ->
-    assert.doesNotThrow -> new Neck.Scope {}
+    it 'throw error when no context given', ->
+      assert.throws -> new Neck.Scope()
 
-  it 'have own properties', ->
-    assert.ok scope.hasOwnProperty "_resolvers"
-    assert.ok scope.hasOwnProperty "_childs"
-    assert.ok scope.hasOwnProperty "_callbacks"
-    assert.ok scope.hasOwnProperty "listeningTo"
-    assert.ok scope.hasOwnProperty "listeningToOnce"
-  
-  it 'create child scope', ->
-    child = scope.child()
-    assert.equal child.parent, scope
-    assert.include scope._childs, child
+    it 'not throw error when context given', ->
+      assert.doesNotThrow -> new Neck.Scope {}
 
-    assert.ok child.hasOwnProperty "_resolvers"
-    assert.ok child.hasOwnProperty "_childs"
-    assert.ok child.hasOwnProperty "_callbacks"
-    assert.ok child.hasOwnProperty "listeningTo"
-    assert.ok child.hasOwnProperty "listeningToOnce"
+    it 'have own properties', ->
+      assert.ok scope.hasOwnProperty "_resolvers"
+      assert.ok scope.hasOwnProperty "_childs"
+      assert.ok scope.hasOwnProperty "_callbacks"
+      assert.ok scope.hasOwnProperty "listeningTo"
+      assert.ok scope.hasOwnProperty "listeningToOnce"
+    
+    it 'create child scope', ->
+      child = scope.child()
+      assert.equal child.parent, scope
+      assert.include scope._childs, child
 
-  it 'release self and children', ->
-    scope.release()
-    assert.equal 0, scope._childs.length
-    assert.equal scope.listeningToOnce, undefined
-    assert.equal scope.listeningTo, undefined
-    assert.deepEqual scope._callbacks, {}
+      assert.ok child.hasOwnProperty "_resolvers"
+      assert.ok child.hasOwnProperty "_childs"
+      assert.ok child.hasOwnProperty "_callbacks"
+      assert.ok child.hasOwnProperty "listeningTo"
+      assert.ok child.hasOwnProperty "listeningToOnce"
 
-  describe 'Properties', ->
+  describe 'properties', ->
 
     it 'parse string for eval', ->
       testCases =
@@ -120,6 +115,10 @@ describe 'Scope', ->
       # Now create expression property - mixed parent properties
       scope.addProperty 'test2', "testString1 + ' ' + testString2 + ' ' + testNumber1"
       assert.equal scope.test2, "new value dsa 10"
+      
+      # Expression object property
+      scope.addProperty 'test2a', "{'property': 'value'}"
+      assert.deepEqual scope.test2a, { property: "value" }
 
       # We can't set this value, so it still has value of expression
       try
@@ -149,6 +148,17 @@ describe 'Scope', ->
       assert.deepEqual scope._resolvers['test4'][0], { scope: parentScope, property: '?' }
       assert.equal scope._resolvers['test4'].length, 1
 
+    it 'resolve grand parent properties', ->
+      grand = new Neck.Scope({})
+      grand['test'] = 'Test text'
+      scope.parent = parent = grand.child()
+      parent.addProperty 'property', 'test'
+      scope.addProperty 'myProperty', 'property'
+
+      assert.equal scope['myProperty'], 'Test text'
+      assert.equal scope._resolvers['myProperty'][0].scope, grand
+      assert.equal scope._resolvers['myProperty'][0].property, 'test'
+
     it 'return root scope', ->
       child1 = scope.child()
       child2 = child1.child()
@@ -157,7 +167,7 @@ describe 'Scope', ->
       assert.equal child3._root(), scope
       assert.equal scope._root(), scope
 
-  describe 'Wachers', ->
+  describe 'wachers', ->
 
     it 'watch parent property', ->
       callback = sinon.spy()
@@ -169,7 +179,7 @@ describe 'Scope', ->
       scope.watch 'myProperty', callback
       assert.ok callback.calledOnce 
 
-      parent.apply 'test'
+      parent.trigger 'refresh:test'
       assert.ok callback.calledTwice 
 
     it 'watch own property', ->
@@ -179,8 +189,43 @@ describe 'Scope', ->
       scope.watch 'test', callback
       assert.ok callback.calledOnce
 
-      scope.apply 'test'
+      scope.trigger 'refresh:test'
       assert.ok callback.calledTwice
+
+    it 'watch on grand parent scope property directly', ->
+      callback = sinon.spy()
+      scope.test = 'Test text'
+      child = scope.child()
+      grandChild = child.child()
+
+      grandChild.watch 'test', callback
+      assert.ok callback.calledOnce
+
+      scope.trigger 'refresh:test'
+      assert.ok callback.calledTwice
+
+    it 'watch on grand parent scope property throw child', ->
+      callback = sinon.spy()
+      scope.test = 'Test text'
+      child = scope.child()
+      child.addProperty 'property', 'test'
+      grandChild = child.child()
+
+      grandChild.watch 'property', callback
+      assert.ok callback.calledOnce
+
+      scope.trigger 'refresh:test'
+      assert.ok callback.calledTwice
+
+    it 'watch null triggers on root apply', ->
+      callback = sinon.spy()
+      child = scope.child()
+      child.watch callback
+      assert.ok callback.calledOnce
+
+      scope.trigger 'refresh:?'
+      assert.ok callback.calledTwice
+
 
     it 'apply changes to own scope', ->
       callback = sinon.spy()
@@ -210,6 +255,16 @@ describe 'Scope', ->
       child.apply 'childTest'
 
       assert.ok callback.calledTwice
+
+  describe 'release', ->
+
+    it 'release self and children scopes', ->
+      child = scope.child()
+      scope.release()
+      assert.equal 0, scope._childs.length
+      assert.equal scope.listeningToOnce, undefined
+      assert.equal scope.listeningTo, undefined
+      assert.deepEqual scope._callbacks, {}
 
 
 

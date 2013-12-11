@@ -1,6 +1,6 @@
 describe 'Screen', ->
 
-  describe 'when screen is constructed', ->
+  describe 'constructor', ->
 
     it 'throw error when no path given', ->
       assert.throw -> new Neck.Screen()

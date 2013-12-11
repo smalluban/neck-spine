@@ -5,164 +5,199 @@ describe 'Controller', ->
       <div data-test="'test text'", data-number="2", data-property="test"/>
     '''
   )
+
+  describe 'constructor', ->
     
-  it 'not create scope when scope is false', ->
-    c = new Neck.Controller
-      scope: false
+    it 'not create scope when scope is false', ->
+      c = new Neck.Controller
+        scope: false
 
-    assert.isUndefined c.scope
+      assert.isUndefined c.scope
 
-  it 'create child scope when inhertScope is true', ->
-    parentScope = new Neck.Scope {}
-    c = new Neck.Controller
-      scope: true
-      parentScope: parentScope
+    it 'create child scope when inhertScope is true', ->
+      parentScope = new Neck.Scope {}
+      c = new Neck.Controller
+        scope: true
+        parentScope: parentScope
 
-    assert.equal c.scope.parent, parentScope
+      assert.equal c.scope.parent, parentScope
 
-  it 'not create child scope when inhertScope is false', ->
-    parentScope = new Neck.Scope {}
-    c = new Neck.Controller
-      scope: true
-      inheritScope: false
-      parentScope: parentScope
+    it 'not create child scope when inhertScope is false', ->
+      parentScope = new Neck.Scope {}
+      c = new Neck.Controller
+        scope: true
+        inheritScope: false
+        parentScope: parentScope
 
-    assert.notEqual c.scope.parent, parentScope
+      assert.notEqual c.scope.parent, parentScope
 
-  it 'take dataset of DOM element and inject it to scope', ->
-    c = new Neck.Controller
-      el: el
-      scope:
-        test: "="
-        number: "="
-        property: "@"
+    it 'take dataset of DOM element and inject it to scope', ->
+      c = new Neck.Controller
+        el: el
+        scope:
+          test: "="
+          number: "="
+          property: "@"
 
-    assert.equal c.scope.test, 'test text'
-    assert.isString c.scope.test
+      assert.equal c.scope.test, 'test text'
+      assert.isString c.scope.test
 
-    assert.equal c.scope.number, 2
-    assert.isNumber c.scope.number
+      assert.equal c.scope.number, 2
+      assert.isNumber c.scope.number
 
-    assert.equal c.scope.property, 'test'
-    assert.isString c.scope.property
+      assert.equal c.scope.property, 'test'
+      assert.isString c.scope.property
 
-    c2 = new Neck.Controller
-      el: el
-      parentScope: new Neck.Scope {}
-      scope: 
-        property: '='
+      c2 = new Neck.Controller
+        el: el
+        parentScope: new Neck.Scope {}
+        scope: 
+          property: '='
 
-    assert.ok c2.scope.hasOwnProperty 'property'
-    assert.isUndefined c2.scope.property
+      assert.ok c2.scope.hasOwnProperty 'property'
+      assert.isUndefined c2.scope.property
 
-  it 'move scope properties when not in dataset', ->
-    c = new Neck.Controller
-      el: el
-      parentScope: new Neck.Scope {}
-      scope:
-        asdf: '='
-        test: 'This is test text'
-        myProperty: 'this is moved to scope'
+    it 'move scope properties when not in dataset', ->
+      c = new Neck.Controller
+        el: el
+        parentScope: new Neck.Scope {}
+        scope:
+          asdf: '='
+          test: 'This is test text'
+          myProperty: 'this is moved to scope'
 
-    assert.isUndefined c.scope.asdf
-    assert.equal c.scope.test, 'This is test text'
-    assert.equal c.scope.myProperty, 'this is moved to scope'
+      assert.isUndefined c.scope.asdf
+      assert.equal c.scope.test, 'This is test text'
+      assert.equal c.scope.myProperty, 'this is moved to scope'
 
-  it 'take all dataset values are evaluated when scope is "="', ->
-    c = new Neck.Controller 
-      el: el
-      parentScope: new Neck.Scope {}
-      scope: '='
+    it 'take all dataset values are evaluated when scope is "="', ->
+      c = new Neck.Controller 
+        el: el
+        parentScope: new Neck.Scope {}
+        scope: '='
 
-    assert.equal c.scope.test, 'test text'
-    assert.equal c.scope.number, 2
-    assert.isUndefined c.scope.property
+      assert.equal c.scope.test, 'test text'
+      assert.equal c.scope.number, 2
+      assert.isUndefined c.scope.property
 
-  it 'take all dataset values are copied when scope is "@"', ->
-    c = new Neck.Controller 
-      el: el
-      parentScope: new Neck.Scope {}
-      scope: '@'
+    it 'take all dataset values are copied when scope is "@"', ->
+      c = new Neck.Controller 
+        el: el
+        parentScope: new Neck.Scope {}
+        scope: '@'
 
-    assert.equal c.scope.test, "'test text'"
-    assert.equal c.scope.number, '2'
-    assert.equal c.scope.property, 'test'
+      assert.equal c.scope.test, "'test text'"
+      assert.equal c.scope.number, '2'
+      assert.equal c.scope.property, 'test'
 
-  it 'append to self(el) when no yield element', ->
-    c = new Neck.Controller
-      el: $('<div></div>')
-      scope: false
+  describe 'append', ->
 
-    c.append $('<p></p>')
+    it 'append to self(el) when no yield element', ->
+      c = new Neck.Controller
+        el: $('<div></div>')
+        scope: false
 
-    assert.lengthOf c.el.children('p'), 1
+      c.append $('<p></p>')
 
-  it 'append to yield element when it is in el', ->
-    c = new Neck.Controller
-      el: $('<div><div ui-yield></div></div>')
-      scope: false
+      assert.lengthOf c.el.children('p'), 1
 
-    c.append $('<p></p>')
-    assert.lengthOf c.el.find('[ui-yield]').children('p'), 1
+    it 'append to yield element when it is in el', ->
+      c = new Neck.Controller
+        el: $('<div><div ui-yield></div></div>')
+        scope: false
 
-  it 'render by require view path', ->
-    viewCallback = -> '<div id="test"></div>'
-    window.require = sinon.stub().returns viewCallback
+      c.append $('<p></p>')
+      assert.lengthOf c.el.find('[ui-yield]').children('p'), 1
 
-    c = new Neck.Controller
-      el: $('<div></div>')
-      scope: false
-      view: 'exampleView'
+  describe 'parse', ->
 
-    c.render()
-    assert.ok c.el[0].outerHTML is '<div id="test"></div>'
+    it 'initialize runners for elements', ->
+      c = new Neck.Controller
+        el: $('<div><div ui-test ui-test2></div>')
+        scope: false
 
-    window.require = undefined
+      runner = Neck.Controller.runners['test'] = sinon.spy()
+      blackRunner = Neck.Controller.runners['test2'] = sinon.spy()
 
-  it 'render by template string property', ->
-    c = new Neck.Controller
-      el: $('<div></div>')
-      scope: false
-      template: '<div id="test"></div>'
+      c.parse()
+      assert.ok runner.calledOnce
+      assert.ok blackRunner.calledOnce
+      assert.ok blackRunner.calledAfter runner
 
-    c.render()
-    assert.ok c.el[0].outerHTML is '<div id="test"></div>'
+  describe 'render', ->
 
-  it 'render by template function property', ->
-    template = ->
-      '<div id="test"></div>'
+    it 'release scope childs', ->
+      c = new Neck.Controller
+        el: $('<div></div>')
+        scope: true
+        template: '<div id="test"></div>'
 
-    c = new Neck.Controller
-      el: $('<div></div>')
-      scope: false
-      template: template
+      release = c.scope.releaseChilds = sinon.spy()
+      c.render()
 
-    c.render()
-    assert.ok c.el[0].outerHTML is '<div id="test"></div>'
+      assert.ok release.calledOnce
 
-  it 'render template over view when both are given', ->
-    viewCallback = -> '<div id="test"></div>'
-    window.require = sinon.stub().returns viewCallback
 
-    c = new Neck.Controller
-      el: $('<div></div>')
-      scope: false
-      view: 'exampleView'
-      template: '<div id="test"></div>'
+    it 'render by require view path', ->
+      viewCallback = -> '<div id="test"></div>'
+      window.require = sinon.stub().returns viewCallback
 
-    c.render()
-    assert.ok c.el[0].outerHTML is '<div id="test"></div>'
+      c = new Neck.Controller
+        el: $('<div></div>')
+        scope: false
+        view: 'exampleView'
 
-  it 'release scope when release self', ->
-    c = new Neck.Controller
-      scope: true
-      inhertScope: false
+      c.render()
+      assert.ok c.el[0].outerHTML is '<div id="test"></div>'
 
-    spy = c.scope.release = sinon.spy()
-    c.release()
+      window.require = undefined
 
-    assert.ok spy.calledOnce
-    assert.isUndefined c.scope
+    it 'render by template string property', ->
+      c = new Neck.Controller
+        el: $('<div></div>')
+        scope: false
+        template: '<div id="test"></div>'
+
+      c.render()
+      assert.ok c.el[0].outerHTML is '<div id="test"></div>'
+
+    it 'render by template function property', ->
+      template = ->
+        '<div id="test"></div>'
+
+      c = new Neck.Controller
+        el: $('<div></div>')
+        scope: false
+        template: template
+
+      c.render()
+      assert.ok c.el[0].outerHTML is '<div id="test"></div>'
+
+    it 'render template over view when both are given', ->
+      viewCallback = -> '<div id="test"></div>'
+      window.require = sinon.stub().returns viewCallback
+
+      c = new Neck.Controller
+        el: $('<div></div>')
+        scope: false
+        view: 'exampleView'
+        template: '<div id="test"></div>'
+
+      c.render()
+      assert.ok c.el[0].outerHTML is '<div id="test"></div>'
+
+  describe 'release', ->
+
+    it 'release scope', ->
+      c = new Neck.Controller
+        scope: true
+        inhertScope: false
+
+      spy = c.scope.release = sinon.spy()
+      c.release()
+
+      assert.ok spy.calledOnce
+      assert.isUndefined c.scope
 
 
 
