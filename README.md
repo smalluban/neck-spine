@@ -13,6 +13,7 @@ To work with Neck you should read Spine [documentation](http://spinejs.com/docs/
 It is on very early stage of development(no docs and tests yet). Consider not using it in production.
 
 [![Build Status](https://travis-ci.org/smalluban/neck.png?branch=master)](https://travis-ci.org/smalluban/neck)
+[![Coverage Status](https://coveralls.io/repos/smalluban/neck/badge.png?branch=master)](https://coveralls.io/r/smalluban/neck?branch=master)
 
 ## Getting started
 
