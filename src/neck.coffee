@@ -54,9 +54,10 @@ Neck.Scope = class Scope extends Spine.Module
     string = string.replace /\'[^\']+\'/g, (text)-> "###"
     result = []
 
-    for item in string.match /scope\.([a-zA-Z$_][^\ \(\)\{\}\;]*)/g
-      if result.indexOf(property = item.replace('scope.','')) is -1
-        result.push property.split('.')[0]
+    if (matches = string.match /scope\.([a-zA-Z$_][^\ \(\)\{\}\;]*)/g) instanceof Array
+      for item in matches
+        if result.indexOf(property = item.replace('scope.','')) is -1
+          result.push property.split('.')[0]
 
     result
 
@@ -137,11 +138,13 @@ Neck.Scope = class Scope extends Spine.Module
           @bind "refresh:#{property}", callback
         else
           scope = @
-          while parentScope = scope.parent
-            if parentScope._resolvers[property]
-              for resolver in parentScope._resolvers[property] 
+          while scope = scope.parent
+            if scope._resolvers[property]
+              for resolver in scope._resolvers[property] 
                 @listenTo resolver.scope, "refresh:#{resolver.property}", callback
               break
+          unless scope
+            @listenTo @._root(), "refresh:#{property}", callback
     else
       @listenTo @_root(), "refresh:?", callback
 
