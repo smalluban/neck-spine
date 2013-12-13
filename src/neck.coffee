@@ -286,15 +286,13 @@ Neck.Screen = class Screen extends Neck.Controller
   singleton: false
 
   constructor: (options)->
-    if @singleton or options.singleton
+    if @singleton
       unless @constructor._instance
         @constructor._instance = @
       else
         return @constructor._instance
 
     super
-
-    throw "No path defined" unless @path
 
     # Add to el path classes
     @el.addClass @path.replace /\//gi, ' '
@@ -348,7 +346,10 @@ Neck.Screen = class Screen extends Neck.Controller
     @
 
   deactivate: ->
-    @el.removeClass 'active' unless @yield
+    unless @yield
+      @el.removeClass 'active' 
+      @el.css 'zIndex', ''
+      @zIndex = undefined
     @trigger 'deactivate'
 
   ### ROUTING ###
@@ -412,11 +413,10 @@ Neck.Screen = class Screen extends Neck.Controller
     # Delete parent reference
     @parent = undefined
 
+    @deactivate()
+
     unless @singleton
       super
-    else
-      @el.css 'zIndex', @zIndex = 0
-      @deactivate()
 
 
 Neck.App = class App extends Neck.Screen
