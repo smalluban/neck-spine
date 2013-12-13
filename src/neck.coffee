@@ -281,7 +281,17 @@ Neck.Screen = class Screen extends Neck.Controller
   # Can be useful when new params goes to the same view
   reloadSelf: false 
 
-  constructor: ->
+  # Screen can be singleton class, which means
+  # constructor will always return one instance
+  singleton: false
+
+  constructor: (options)->
+    if @singleton or options.singleton
+      unless @constructor._instance
+        @constructor._instance = @
+      else
+        return @constructor._instance
+
     super
 
     throw "No path defined" unless @path
@@ -346,6 +356,9 @@ Neck.Screen = class Screen extends Neck.Controller
   _leaf: ->
     @child?._leaf() or @
 
+  _root: ->
+    @parent?._root() or @
+
   _childWithPath: (path)->
     if @child
       if @child.path is path
@@ -356,7 +369,7 @@ Neck.Screen = class Screen extends Neck.Controller
       false
 
   route: (path, options = {}, back = false)->
-    controller = @root._childWithPath path
+    controller = @_root()._childWithPath path
 
     # New controller instance is created if there is
     # no controller in scope or if it is direct child
@@ -380,28 +393,14 @@ Neck.Screen = class Screen extends Neck.Controller
         options.parentScope = @scope
 
       options.path = path
-      options.root = @root
-
-      # Set child of parent controller
       controller = new controller(options)
 
     # Finally activate controller
     controller.activate()
 
-    # Send route event to app controller
-    @root.trigger 'route', controller
-
-  ### SINGLETON ###
-
-  singleton: -> 
-    unless @constructor._instance
-      @constructor._instance = @
-      return false
-    else
-      return @constructor._instance
-
-  _isSingleton: ->
-    @constructor._instance isnt undefined
+    # Send route events
+    @_root().trigger 'route', controller
+    @.trigger 'route', controller
 
   ### RELEASE ###
 
@@ -413,7 +412,7 @@ Neck.Screen = class Screen extends Neck.Controller
     # Delete parent reference
     @parent = undefined
 
-    unless @_isSingleton()
+    unless @singleton
       super
     else
       @el.css 'zIndex', @zIndex = 0
