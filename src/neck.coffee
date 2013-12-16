@@ -428,13 +428,11 @@ Neck.App = class App extends Neck.Screen
   ### OPTIONS ###
 
   hashRoute: false
+  errorRoute: false
   historyApi: false
 
   constructor: ->
     super
-
-    # App Controller is root of screens scope
-    @root = @
 
     # History API can be used when Browser support it
     @historyApi = @historyApi and window.history
@@ -463,23 +461,23 @@ Neck.App = class App extends Neck.Screen
         hash.push if params.length then screen.path + "[#{params.join('&')}]" else screen.path
       screen = screen.child
     if @historyApi
-      window.history.replaceState null, '', hash.join(':')
+      window.history.replaceState null, '', '/' + hash.join(':')
     else
       window.location.hash = "!/#{ hash.join(':') }"
     
   _evaluateRoute: ->
     # get path
-    if @historyApi and window.history
+    if @historyApi
       path = window.location.pathname
-      path = '/' + path if path.substr(0,1) isnt '/'
     else
       path = window.location.hash
       path = path.replace(/^#(!\/)?/, '')
 
+    path = path.replace /^\//, ''
+
     if path = path.match /[^\:]+((\'[^\']*\')?[^\:]+)+/g
       screen = @
       for routePath, i in path
-        routePath = routePath.replace /^\+/, -> screen.path + '/'
         options = params: {}
         routePath = routePath.match /[^\[\]]+/g
 
@@ -490,6 +488,10 @@ Neck.App = class App extends Neck.Screen
         try
           screen = screen.route(routePath[0], options)
         catch e
-          # Clear hash
-          window.location.hash = "!/"
-          return @root.activate()
+          unless @errorRoute
+            # Clear hash
+            unless @historyApi
+              window.location.hash = "!/"
+            return @.activate()
+          else
+            @route @errorRoute.url, $.extend(errorCode: 404, @errorRoute.params)
