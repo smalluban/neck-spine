@@ -199,19 +199,24 @@ describe 'Screen', ->
 
     describe 'new controller', ->
       
-      it 'release child instance when option "reloadSelf" is on', ->
-        child = s.child = new Neck.Screen path: 'test', template: '', reloadSelf: true
+      it 'release child instance unless screen is popup', ->
+        child = s.child = new Neck.Screen path: 'test1', template: ''
         child.release = sinon.spy()
 
-        s.route 'test'
+        s.route 'test2'
         assert.ok child.release.calledOnce
 
-        # And of
-        child = s.child = new Neck.Screen path: 'test', template: ''
+        # Popup
+        window.require = -> class Popup extends Neck.Screen
+          path: 'test'
+          template: ''
+          popup: true
+
+        child = s.child = new Neck.Screen path: 'test1', template: ''
         child.release = sinon.spy()
 
-        s.route 'test'
-        assert.notOk child.release.calledOnce
+        s.route 'test2'
+        assert.ok child.release.notCalled
 
       it 'create new controller and puts it to child', ->
         assert.isUndefined s.child

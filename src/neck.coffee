@@ -376,9 +376,11 @@ Neck.Screen = class Screen extends Neck.Controller
     # no controller in scope or if it is direct child
     # and it has 'reloadSelf' property turn on (true)
     if (controller is false) or (controller is @child and controller.reloadSelf)
-      @child.release() if controller is @child
-
       controller = require("#{Neck.Controller.controllersPath}/#{path}")
+
+      # Release child to replace it with new controller
+      # Only when its popup we leave child and put popup on top of it
+      @child?.release() unless controller::popup
 
       # Popup always are put on top of controllers scope
       parent = if controller::popup then @_leaf() else @
