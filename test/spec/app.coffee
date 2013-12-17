@@ -11,12 +11,12 @@ describe 'App', ->
       assert.notOk app.historyApi
 
     it 'set callback to route event', ->
-      _oldRoute = Neck.App.prototype._pushRoute
-      Neck.App.prototype._pushRoute = sinon.spy()
+      _oldRoute = Neck.App.prototype.pushRoute
+      Neck.App.prototype.pushRoute = sinon.spy()
       app = new Neck.App hashRoute: true
       app.trigger 'route'
-      assert.ok app._pushRoute.calledOnce
-      Neck.App.prototype._pushRoute = _oldRoute
+      assert.ok app.pushRoute.calledOnce
+      Neck.App.prototype.pushRoute = _oldRoute
 
   describe 'on run', ->
 
@@ -28,9 +28,9 @@ describe 'App', ->
 
     it 'can evaluate route', ->
       app = new Neck.App template: '', hashRoute: true
-      app._evaluateRoute = sinon.spy()
+      app.evaluateRoute = sinon.spy()
       app.trigger 'run'
-      assert.ok app._evaluateRoute.calledOnce
+      assert.ok app.evaluateRoute.calledOnce
 
   describe 'push route', ->
 
@@ -50,7 +50,7 @@ describe 'App', ->
               test1: 'dsa'
               test2: 321.123
 
-      app._pushRoute()
+      app.pushRoute()
       assert.equal window.location.hash, "#!/test1[test1='asd'&test2=123.321]:test2[test1='dsa'&test2=321.123]"
       window.location.hash = ''
 
@@ -71,7 +71,7 @@ describe 'App', ->
               test2: 321.123
       
       old_state = window.location.pathname
-      app._pushRoute()
+      app.pushRoute()
 
       assert.equal window.location.pathname, "/test1[test1='asd'&test2=123.321]:test2[test1='dsa'&test2=321.123]"
       window.history.replaceState null, '', old_state
@@ -87,7 +87,7 @@ describe 'App', ->
         spy = sinon.spy()
         return { route: spy }
 
-      app._evaluateRoute()
+      app.evaluateRoute()
       window.history.replaceState null, '', oldPath
 
       assert.ok stub.calledOnce
@@ -106,7 +106,7 @@ describe 'App', ->
         spy = sinon.spy()
         return { route: spy }
 
-      app._evaluateRoute()
+      app.evaluateRoute()
       window.location.hash = ''
 
       assert.ok stub.calledOnce
@@ -124,13 +124,13 @@ describe 'App', ->
         spy = app.activate = sinon.spy()
 
         window.location.hash = '/test'
-        app._evaluateRoute()
+        app.evaluateRoute()
         window.location.hash = ''
         assert.ok spy.calledOnce
 
         old_path = window.location.pathname
         app.historyApi = true
-        app._evaluateRoute()
+        app.evaluateRoute()
         window.history.replaceState null, '', old_path
         assert.ok spy.calledTwice
 
@@ -142,7 +142,7 @@ describe 'App', ->
 
         window.location.hash = '/test'
         stub = sinon.stub app, 'route', (url)-> if url is 'test' then throw 'error'
-        app._evaluateRoute()
+        app.evaluateRoute()
         window.location.hash = ''
 
         assert.ok stub.calledTwice

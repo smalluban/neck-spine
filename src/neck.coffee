@@ -442,17 +442,16 @@ Neck.App = class App extends Neck.Screen
     @historyApi = @historyApi and window.history
 
     # Push route to hash
-    @on 'route', @_pushRoute if @hashRoute
+    @on 'route', @pushRoute if @hashRoute
 
     # This call should be triggered in your app controller
     # by @trigger 'run' when your calls and setup is done
     @one 'run', ->
       @render()
-      @_evaluateRoute() if @hashRoute
+      @evaluateRoute() if @hashRoute
 
-  _pushRoute: ->
+  pushRoute: ->
     hash = []
-
     screen = @child
     while screen 
       if (screen.child and screen.yield) or (!screen.child)
@@ -469,7 +468,7 @@ Neck.App = class App extends Neck.Screen
     else
       window.location.hash = "!/#{ hash.join(':') }"
     
-  _evaluateRoute: ->
+  evaluateRoute: ->
     # get path
     if @historyApi
       path = window.location.pathname
