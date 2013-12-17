@@ -369,7 +369,7 @@ Neck.Screen = class Screen extends Neck.Controller
     else
       false
 
-  route: (path, options = {}, back = false)->
+  route: (path, options = {}, back = false, noEvents = false)->
     controller = @_root()._childWithPath path
 
     # New controller instance is created if there is
@@ -402,8 +402,9 @@ Neck.Screen = class Screen extends Neck.Controller
     controller.activate()
 
     # Send route events
-    @_root().trigger 'route', controller
-    @.trigger 'route', controller
+    unless noEvents
+      @_root().trigger 'route', controller
+      @.trigger 'route', controller
 
   ### RELEASE ###
 
@@ -413,6 +414,7 @@ Neck.Screen = class Screen extends Neck.Controller
     @child = undefined
 
     # Delete parent reference
+    @parent?.child = undefined
     @parent = undefined
 
     @deactivate()
