@@ -18,7 +18,7 @@ Neck.Controller.runners['repeat'] = class RepeatRunner extends Neck.Controller
       throw 'Wrong list definition'
 
     # Get item and items
-    @runAttr = @runAttr.split(' in ')
+    console.log @runAttr = @runAttr.split(' in ')
 
     # Set items property
     @scope.addProperty 'items', @runAttr[1]

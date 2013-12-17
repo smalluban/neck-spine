@@ -86,13 +86,19 @@ Neck.Scope = class Scope extends Spine.Module
         resolvers.push string.split('.')[1]
 
         Object.defineProperty @, name, 
-          get: -> eval string
+          get: -> 
+            try
+              eval string
+            catch e
+              undefined
           set: (val)-> 
             model = string.split('.')
             property = model.pop()
-            model = eval model.join('.')
-
-            model[property] = val
+            try
+              model = eval model.join('.')
+              model[property] = val
+            catch e
+              undefined
       else
         if checkString.match /\:/
           string = "(" + string + ")"
@@ -227,11 +233,8 @@ Neck.Controller = class Controller extends Spine.Controller
     $(@yield).append controller.el or controller
 
   parse: (node = @el[0])->
-    el = null
-
-    @parse child for child in node.childNodes
-
     if node.attributes
+      el = null
       for attribute in node.attributes
         continue unless attribute.nodeName?.substr(0, 3) is "ui-"
         name = attribute.nodeName.substr(3)
@@ -239,7 +242,9 @@ Neck.Controller = class Controller extends Spine.Controller
         if Neck.Controller.runners[name]
           el or= $(node)
           runner = new Neck.Controller.runners[name](el: el, parentScope: @scope, runAttr: attribute.value)
-      
+
+    @parse child for child in node.childNodes
+    
     undefined
 
   render: ->
