@@ -1,5 +1,7 @@
 Neck.Controller.runners['repeat'] = class RepeatRunner extends Neck.Controller
 
+  innerTemplate: true
+
   scope:
     filter: '='
     view: '@'
@@ -7,18 +9,12 @@ Neck.Controller.runners['repeat'] = class RepeatRunner extends Neck.Controller
   constructor: ->
     super
 
-    unless @scope.view
-      @template = @el.html()
-      
-    # Clear runner body
-    @el.empty()
-
     # run attribute should pass regexp "'item_name in items_name"
     unless @runAttr.match /^[a-zA-Z$_][^\ \(\)\{\}]*\ in\ [a-zA-Z$_][^\ \(\)\{\}]*$/
       throw 'Wrong list definition'
 
     # Get item and items
-    console.log @runAttr = @runAttr.split(' in ')
+    @runAttr = @runAttr.split(' in ')
 
     # Set items property
     @scope.addProperty 'items', @runAttr[1]
@@ -42,15 +38,25 @@ Neck.Controller.runners['repeat'] = class RepeatRunner extends Neck.Controller
           itemController
         undefined
 
-    timeout = null
+    if @scope.hasOwnProperty 'filter'
+      timeout = null
+      @scope.watch 'filter', =>
+        clearTimeout timeout
+        timeout = setTimeout =>
+          if @controllers
+            @checkFilter(controller) for controller in @controllers
+          undefined
+        , 10
 
-    @scope.watch 'filter', =>
-      clearTimeout timeout
-      timeout = setTimeout =>
-        if @controllers
-          controller.checkFilter() for controller in @controllers
-        undefined
-      , 10
+  checkFilter: (c)->
+    if @scope.filter isnt undefined
+      if typeof @scope.filter is 'function'
+        match = @scope.filter(c.item)
+      else
+        match = c.item.toString()?.match new RegExp(@scope.filter, 'gi')
+      if match then c.el.show() else c.el.hide()
+    else
+      c.el.show()
 
 class RepeatItem extends Neck.Controller
 
@@ -66,20 +72,3 @@ class RepeatItem extends Neck.Controller
     if @item instanceof Spine.Model
       @listenTo @item, 'update', @render
       @listenTo @item, 'destroy', => @release()
-
-    @checkFilter()
-
-  checkFilter: ->
-    if !@scope.filter and !@visible
-      @el.show()
-      @visible = true
-    else
-      if @item.toString()?.match new RegExp(@scope.filter, 'gi')
-        unless @visible
-          @el.show()
-          @visible = true
-      else
-        if @visible
-          @el.hide()
-          @visible = false
-
