@@ -68,6 +68,13 @@ Neck.Scope = class Scope extends Spine.Module
       configurable: false
       writable: true
 
+  addOwnProperty: (key, value)->
+    Object.defineProperty @, key,
+      value: value
+      enumerable: true
+      configurable: false
+      writable: true
+
   addProperty: (name, string, scope = @parent, context = @context)->
     # Match string, ex: "'Text'"
     if string.match /^\'.+\'$/
@@ -141,7 +148,7 @@ Neck.Scope = class Scope extends Spine.Module
           for resolver in @_resolvers[property] 
             @listenTo resolver.scope, "refresh:#{resolver.property}", callback
         else if @hasOwnProperty(property) or !@parent
-          @bind "refresh:#{property}", callback
+          @on "refresh:#{property}", callback
         else
           scope = @
           while scope = scope.parent
@@ -197,6 +204,10 @@ Neck.Controller = class Controller extends Spine.Controller
   scope: true
   inheritScope: true
 
+  # When true controller will take innerHTML 
+  # of element and set it as template
+  innerTemplate: false
+
   constructor: ->
     super
 
@@ -214,9 +225,12 @@ Neck.Controller = class Controller extends Spine.Controller
             switch @scope[key]
               when '@' then childScope.addProperty key, "'#{string}'", @parentScope
               when '=' then childScope.addProperty key, string, @parentScope
-              else childScope[key] = @scope[key]
+              else childScope.addOwnProperty key, @scope[key]
           else 
-            childScope[key] = if @scope[key] isnt '=' and @scope[key] isnt '@' then @scope[key] else undefined
+            if @scope[key] isnt '=' and @scope[key] isnt '@'
+              childScope.addOwnProperty key, @scope[key] 
+            else
+              childScope.addOwnProperty key, undefined
       else if @scope is '@'
         for key, value of @el[0].dataset
           childScope.addProperty key, "'#{value}'", @parentScope
@@ -227,6 +241,11 @@ Neck.Controller = class Controller extends Spine.Controller
       @scope = childScope
     else
       @scope = undefined
+
+    if @innerTemplate
+      if(template = @el.html()) isnt ''
+        @template = template
+        @el.empty()
 
   append: (controller)->
     @yield or= @el.find('[ui-yield]')[0] or @el[0]
@@ -242,9 +261,9 @@ Neck.Controller = class Controller extends Spine.Controller
         if Neck.Controller.runners[name]
           el or= $(node)
           runner = new Neck.Controller.runners[name](el: el, parentScope: @scope, runAttr: attribute.value)
-
-    @parse child for child in node.childNodes
+          breakParse = true if runner.innerTemplate
     
+    @parse child for child in node.childNodes unless breakParse
     undefined
 
   render: ->
