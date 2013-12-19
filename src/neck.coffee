@@ -435,6 +435,8 @@ Neck.Screen = class Screen extends Neck.Controller
       @_root().trigger 'route', controller
       @.trigger 'route', controller
 
+    controller
+
   ### RELEASE ###
 
   release: ->
