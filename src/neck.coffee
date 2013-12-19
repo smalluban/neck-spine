@@ -41,7 +41,7 @@ Neck.Scope = class Scope extends Spine.Module
       (^|\\ )#{scope}\\.(do|if|in|for|let|new|try|var|case|else|enum|eval|false|null|this|true|
       void|with|break|catch|class|const|super|throw|while|yield|delete|export|import|public|
         return|static|switch|typeof|default|extends|finally|package|private|continue|debugger|
-        function|arguments|interface|protected|implements|instanceof|undefined|window)""", "g"
+        function|arguments|interface|protected|implements|instanceof|undefined|window)(\\ |$)""", "g"
     contextRegex = new RegExp "\\@#{scope}\\.([a-zA-Z$_][^\ ]+)", "g"
 
     string.replace(/\'[^\']+\'/g, (text)-> "###")
@@ -111,7 +111,11 @@ Neck.Scope = class Scope extends Spine.Module
           string = "(" + string + ")"
 
         Object.defineProperty @, name, 
-          get: -> eval string
+          get: -> 
+            try
+              eval string
+            catch e
+              undefined
 
         unless checkString.match /\(/
           resolvers = @_getPropertiesFromString checkString
@@ -363,6 +367,7 @@ Neck.Screen = class Screen extends Neck.Controller
     @el.css 'zIndex', @zIndex = @parent?.zIndex + 1 or 1
 
     @trigger 'activate'
+    @_root().trigger 'activate:change', @
 
     # Render controller view
     @render() unless @_inDOM()
@@ -466,7 +471,7 @@ Neck.App = class App extends Neck.Screen
     @historyApi = @historyApi and window.history
 
     # Push route to hash
-    @on 'route', @pushRoute if @hashRoute
+    @on 'activate:change', @pushRoute if @hashRoute
 
     # This call should be triggered in your app controller
     # by @trigger 'run' when your calls and setup is done
@@ -478,7 +483,7 @@ Neck.App = class App extends Neck.Screen
     hash = []
     screen = @child
     while screen 
-      if (screen.child and screen.yield) or (!screen.child)
+      if (screen.child and screen.yield) or (!screen.child) or screen.child?.popup
         params = []
         for param, value of screen.params
           if typeof value is 'string'
