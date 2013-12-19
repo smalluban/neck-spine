@@ -10,11 +10,11 @@ describe 'App', ->
       app = new Neck.App historyApi: false
       assert.notOk app.historyApi
 
-    it 'set callback to route event', ->
+    it 'set callback to "activate:change" event', ->
       _oldRoute = Neck.App.prototype.pushRoute
       Neck.App.prototype.pushRoute = sinon.spy()
       app = new Neck.App hashRoute: true
-      app.trigger 'route'
+      app.trigger 'activate:change'
       assert.ok app.pushRoute.calledOnce
       Neck.App.prototype.pushRoute = _oldRoute
 
