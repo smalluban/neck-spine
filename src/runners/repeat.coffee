@@ -1,4 +1,4 @@
-Neck.Controller.runners['repeat'] = class RepeatRunner extends Neck.Controller
+Neck.Runner['repeat'] = class RepeatRunner extends Neck.Controller
 
   innerTemplate: true
 

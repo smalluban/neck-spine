@@ -116,8 +116,8 @@ describe 'Controller', ->
         el: $('<div><div ui-test ui-test2></div>')
         scope: false
 
-      runner = Neck.Controller.runners['test'] = sinon.spy()
-      blackRunner = Neck.Controller.runners['test2'] = sinon.spy()
+      runner = Neck.Runner['test'] = sinon.spy()
+      blackRunner = Neck.Runner['test2'] = sinon.spy()
 
       c.parse()
       assert.ok runner.calledOnce

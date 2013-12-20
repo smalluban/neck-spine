@@ -14,14 +14,14 @@ class RouteRunner extends Neck.Controller
     @scope.context.route @runAttr, options, @back
     @scope.release()
 
-Neck.Controller.runners['route'] = class Router 
+Neck.Runner['route'] = class Router 
 
   constructor: (options)->
     options.el.on 'click', (e)=>
       e.preventDefault()
       new RouteRunner options
 
-Neck.Controller.runners['route-back'] = class Router 
+Neck.Runner['route-back'] = class Router 
 
   constructor: (options)->
     options.el.on 'click', (e)=>

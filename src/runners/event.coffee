@@ -43,4 +43,4 @@ class Event
 for ev in EventList
   eventRunner = class ER extends Event
   eventRunner::eventType = ev
-  Neck.Controller.runners["event-#{ev}"] = eventRunner
+  Neck.Runner["event-#{ev}"] = eventRunner

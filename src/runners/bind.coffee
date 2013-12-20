@@ -1,4 +1,4 @@
-Neck.Controller.runners['bind'] = class BindRunner extends Neck.Controller
+Neck.Runner['bind'] = class BindRunner extends Neck.Controller
 
   events: 
     "keydown": "update"

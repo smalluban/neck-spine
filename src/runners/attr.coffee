@@ -1,4 +1,4 @@
-Neck.Controller.runners['attr'] = class AttrRunner extends Neck.Controller
+Neck.Runner['attr'] = class AttrRunner extends Neck.Controller
   
   constructor: ->
     super

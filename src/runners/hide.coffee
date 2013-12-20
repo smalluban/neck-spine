@@ -1,4 +1,4 @@
-Neck.Controller.runners['hide'] = class HideRunner extends Neck.Controller
+Neck.Runner['hide'] = class HideRunner extends Neck.Controller
 
   constructor: ->
     super

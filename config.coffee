@@ -21,6 +21,10 @@ exports.config =
           'test/vendor/jquery-2.0.3.js'
           'test/vendor/mocha-1.14.0.js'
           'src/neck.coffee'
+          'src/modules/scope.coffee'
+          'src/modules/controller.coffee'
+          'src/modules/screen.coffee'
+          'src/modules/app.coffee'
         ]
 
     stylesheets:

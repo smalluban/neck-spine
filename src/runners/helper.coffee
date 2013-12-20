@@ -1,4 +1,4 @@
-Neck.Controller.runners['helper'] = class HelperRunner
+Neck.Runner['helper'] = class HelperRunner
 
   constructor: (options)->
     helper = new (require("#{Neck.Controller.helpersPath}/" + options.runAttr))(
