@@ -142,6 +142,12 @@ Neck.Screen = class Screen extends Neck.Controller
 
     controller
 
+  back: ->
+    if @parent
+      @parent.activate()
+    else
+      false
+
   ### RELEASE ###
 
   release: ->
