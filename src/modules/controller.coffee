@@ -83,7 +83,7 @@ Neck.Controller = class Controller extends Spine.Controller
       else if typeof @template is 'function'
         @el = $(@template.call(@))
       else
-        @el = $((require("#{Neck.Controller.viewsPath}/#{@view}"))(@scope))
+        @el = $((require("#{Neck.Config.paths.view}/#{@view}"))(@scope))
       
       @parse(el) for el in @el
       undefined
